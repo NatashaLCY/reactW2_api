@@ -1,6 +1,8 @@
 import axios from 'axios'
 import { useState } from 'react'
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+const API_PATH = import.meta.env.VITE_API_PATH;
 
 function App() {
 	const [isAuth, setIsAuth] = useState(false);
@@ -23,13 +25,13 @@ function App() {
 		// (import.meta.env.VITE_BASE_URL);
 		// (import.meta.env.VITE_API_PATH);
 		axios
-			.post(`${import.meta.env.VITE_BASE_URL}/v2/admin/signin`, account)
+			.post(`${BASE_URL}/v2/admin/signin`, account)
 			.then((res) => {
 				const { token, expired } = res.data;
 				console.log(token, expired);
 				document.cookie = `hexToken=${token}; expires=${new Date(expired)}`;
 				axios.defaults.headers.common["Authorization"] = token;
-				axios.get(`${import.meta.env.VITE_BASE_URL}/v2/api/${import.meta.env.VITE_API_PATH}/admin/products`)
+				axios.get(`${BASE_URL}/v2/api/${API_PATH}/admin/products`)
 				.then((res)=>{
 					setProducts(res.data.products);
 				})
@@ -41,6 +43,14 @@ function App() {
 			.catch((err) => {
 				alert("登入失敗");
 			});
+	};
+	const checkUserLogin = async() => {
+		try{
+			await axios.post(`${BASE_URL}/v2/api/user/check`)
+			alert('使用者已登入');
+		}catch{
+			console.log(err);
+		}
 	};
 	return (
 		<>
@@ -75,6 +85,9 @@ function App() {
 									))}
 								</tbody>
 							</table>
+							<button onClick={checkUserLogin} type="button" className="btn btn-success my-1">
+								檢查使用者是否登入
+							</button>
 						</div>
 						<div className="col-6">
 							<h2>單一產品細節</h2>
